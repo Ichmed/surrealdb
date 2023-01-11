@@ -39,8 +39,8 @@ use std::marker::PhantomData;
 use std::pin::Pin;
 use std::sync::atomic::AtomicI64;
 use std::sync::Arc;
-use tokio::time;
-use tokio::time::MissedTickBehavior;
+// use tokio::time;
+// use tokio::time::MissedTickBehavior;
 use tokio_stream::wrappers::IntervalStream;
 use trice::Instant;
 use wasm_bindgen_futures::spawn_local;
@@ -195,18 +195,18 @@ pub(crate) fn router(
 				capacity => HashMap::with_capacity(capacity),
 			};
 
-			let mut interval = time::interval(PING_INTERVAL);
+			// let mut interval = time::interval(PING_INTERVAL);
 			// don't bombard the server with pings if we miss some ticks
-			interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
+			// interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
 			// Delay sending the first ping
-			interval.tick().await;
+			// interval.tick().await;
 
-			let pinger = IntervalStream::new(interval);
+			// let pinger = IntervalStream::new(interval);
 
 			let streams = (
 				socket_stream.map(Either::Response),
 				route_rx.stream().map(Either::Request),
-				pinger.map(|_| Either::Ping),
+				// pinger.map(|_| Either::Ping),
 				events.map(Either::Event),
 			);
 
@@ -358,7 +358,7 @@ pub(crate) fn router(
 								Ok(events) => events,
 								Err(error) => {
 									trace!(target: LOG, "{error}");
-									time::sleep(time::Duration::from_secs(1)).await;
+									// time::sleep(time::Duration::from_secs(1)).await;
 									continue 'reconnect;
 								}
 							}
@@ -366,7 +366,7 @@ pub(crate) fn router(
 						for (_, message) in &replay {
 							if let Err(error) = socket.send(message.clone()).await {
 								trace!(target: LOG, "{error}");
-								time::sleep(time::Duration::from_secs(1)).await;
+								// time::sleep(time::Duration::from_secs(1)).await;
 								continue 'reconnect;
 							}
 						}
@@ -381,7 +381,7 @@ pub(crate) fn router(
 							trace!(target: LOG, "Request {payload}");
 							if let Err(error) = socket.send(Message::Binary(payload.into())).await {
 								trace!(target: LOG, "{error}");
-								time::sleep(time::Duration::from_secs(1)).await;
+								// time::sleep(time::Duration::from_secs(1)).await;
 								continue 'reconnect;
 							}
 						}
@@ -390,7 +390,7 @@ pub(crate) fn router(
 					}
 					Err(error) => {
 						trace!(target: LOG, "Failed to reconnect; {error}");
-						time::sleep(time::Duration::from_secs(1)).await;
+						// time::sleep(time::Duration::from_secs(1)).await;
 					}
 				}
 			}
